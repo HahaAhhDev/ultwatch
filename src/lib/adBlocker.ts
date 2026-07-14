@@ -131,6 +131,95 @@ function blockIframeAds() {
   }, 2000);
 }
 
+// NEW: Block click events within iframes that might trigger redirects
+function blockIframeClicks() {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const iframe = target.closest('iframe');
+    
+    // Only allow clicks on iframes if they're not flagged as ad iframes
+    if (iframe) {
+      const src = iframe.src || '';
+      
+      // Check if iframe contains ad domains
+      if (AD_DOMAIN_PATTERNS.some(p => src.toLowerCase().includes(p))) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+      }
+      
+      // Block clicks on overlay elements within iframes
+      if (target.matches('[class*="overlay"], [class*="popup"], [id*="overlay"], [id*="popup"]')) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+      }
+    }
+  }, true);
+  
+  // Intercept iframe navigation attempts
+  const originalReplace = window.location.replace;
+  const originalAssign = window.location.assign;
+  
+  window.location.replace = function(url: string) {
+    if (AD_DOMAIN_PATTERNS.some(p => url.toLowerCase().includes(p))) {
+      console.warn('[UltraWatch] Blocked redirect attempt to:', url);
+      return undefined;
+    }
+    return originalReplace.call(window.location, url);
+  };
+  
+  window.location.assign = function(url: string) {
+    if (AD_DOMAIN_PATTERNS.some(p => url.toLowerCase().includes(p))) {
+      console.warn('[UltraWatch] Blocked navigation attempt to:', url);
+      return undefined;
+    }
+    return originalAssign.call(window.location, url);
+  };
+}
+
+// NEW: Sandbox iframes to prevent malicious behavior
+function sandboxIframes() {
+  setInterval(() => {
+    document.querySelectorAll('iframe').forEach(iframe => {
+      // Skip if already has sandbox attribute
+      if (iframe.hasAttribute('sandbox')) return;
+      
+      // Add sandbox restrictions for all iframes
+      // allow-same-origin: for video player content
+      // allow-scripts: for video players to function
+      // allow-popups: controlled by blockPopups()
+      // allow-presentation: for fullscreen video
+      iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-presentation');
+    });
+  }, 1000);
+}
+
+// NEW: Monitor and clean up malicious iframe content
+function monitorIframeContent() {
+  setInterval(() => {
+    document.querySelectorAll('iframe').forEach(iframe => {
+      try {
+        // Try to access iframe content
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDoc) {
+          // Remove ad elements inside iframe
+          iframeDoc.querySelectorAll(AD_SELECTORS.join(',')).forEach(el => {
+            el.remove();
+          });
+          
+          // Remove ad scripts inside iframe
+          iframeDoc.querySelectorAll('script').forEach(script => {
+            blockScript(script);
+          });
+        }
+      } catch (e) {
+        // Cross-origin iframe, can't access - skip
+      }
+    });
+  }, 3000);
+}
+
 function init() {
   document.querySelectorAll('script').forEach(script => {
     blockScript(script as HTMLScriptElement);
@@ -138,8 +227,11 @@ function init() {
 
   removeAdElements();
   blockPopups();
+  blockIframeClicks();  // NEW
   setupMutationObserver();
   blockIframeAds();
+  sandboxIframes();     // NEW
+  monitorIframeContent(); // NEW
 
   window.addEventListener('beforeunload', (e) => {
     e.preventDefault();
@@ -147,7 +239,7 @@ function init() {
     return undefined;
   }, { capture: true });
 
-  console.log('[UltraWatch] Ad blocker active');
+  console.log('[UltraWatch] Ad blocker active with iframe protection');
 }
 
 if (document.readyState === 'loading') {
