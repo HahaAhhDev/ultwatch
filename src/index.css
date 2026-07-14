@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ============================================
+   UltraWatch — iOS 26 Liquid Glass
+   Pure black base, white text, glass surfaces
+   ============================================ */
+
+:root {
+  --app-font: Inter, -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Pure black base */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 0 0% 3%;
+  --popover-foreground: 0 0% 100%;
+
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 0 0% 10%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 55%;
+
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 100%;
+  --border-alpha: 0.08;
+  --input: 0 0% 12%;
+  --ring: 0 0% 100%;
+
+  --radius: 1.5rem;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-strong: rgba(255, 255, 255, 0.08);
+  --glass-bg-heaviest: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-strong: rgba(255, 255, 255, 0.15);
+  --glass-blur: 30px;
+  --glass-saturation: 180%;
+
+  /* Gradient */
+  --grad-from: rgba(255, 255, 255, 0.95);
+  --grad-to: rgba(180, 180, 180, 0.8);
+  --grad-text: linear-gradient(135deg, #ffffff, #888888);
+  --grad-text-hover: linear-gradient(135deg, #ffffff, #ffffff);
+  --grad-bg: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+  --grad-bg-hover: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.06));
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Base ---- */
+html, body {
+  font-family: var(--app-font);
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 100% 60% at 50% -10%, rgba(255,255,255,0.03), transparent 60%),
+    #000;
+  min-height: 100vh;
+}
+
+/* ---- Glass utilities ---- */
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(40px) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(40px) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border-strong);
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    transition: background 0.35s cubic-bezier(0.4,0,0.2,1), border-color 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .glass-card:hover {
+    background: var(--glass-bg-strong);
+    border-color: var(--glass-border-strong);
+  }
+
+  .text-gradient {
+    background: var(--grad-text);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-gradient {
+    background: var(--grad-bg);
+  }
+  .bg-gradient:hover {
+    background: var(--grad-bg-hover);
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.08)) 1;
+  }
+
+  .shadow-gradient-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  .shadow-gradient { box-shadow: 0 4px 16px rgba(0,0,0,0.6); }
+  .shadow-gradient-lg { box-shadow: 0 12px 40px rgba(0,0,0,0.7); }
+}
+
+/* ---- Animations ---- */
+.zoom-in-fwd { animation: zoom-in-fwd 1.2s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+@keyframes zoom-in-fwd {
+  0% { transform: translateZ(-80px) scale(0.7); opacity: 0; }
+  100% { transform: translateZ(0) scale(1); opacity: 1; }
+}
+.puff-out-center { animation: puff-out-center 0.7s cubic-bezier(0.165,0.84,0.44,1) 0.5s both; }
+@keyframes puff-out-center {
+  0% { transform: scale(1); filter: blur(0); opacity: 1; }
+  100% { transform: scale(2); filter: blur(4px); opacity: 0; }
+}
+.animate-fade-out-background { animation: fade-out-background 0.3s ease-out forwards; }
+@keyframes fade-out-background { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .container { padding-left: 1rem; padding-right: 1rem; }
+  button, a { min-height: 44px; min-width: 44px; }
+  input, select, textarea { font-size: 16px; }
+  .mobile-spacing { padding-bottom: 6rem; }
+  .mobile-card { border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); }
+  .mobile-title { font-size: 1.5rem; line-height: 2rem; }
+  .mobile-subtitle { font-size: 1rem; line-height: 1.5rem; }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .tablet-spacing { padding: 1.5rem; }
+  button, a { min-height: 48px; min-width: 48px; }
+}
+
+html { scroll-behavior: smooth; }
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen { min-height: -webkit-fill-available; }
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::selection { background: rgba(255,255,255,0.15); color: white; }
+
+body.player-active { overflow: hidden; -ms-overflow-style: none; scrollbar-width: none; }
+body.player-active::-webkit-scrollbar { display: none; }
